@@ -23,6 +23,8 @@ public class MetroPlan {
         String fName = "Metrolink_times_linecolour.csv";
         //store every things into Array for easy output
         ArrayList<Connection> links = new ArrayList<>();
+        //store stations into a hash map for easy check user input.
+        HashSet<String> stations = new HashSet<>();
 
         try{
             BufferedReader p = new BufferedReader(new FileReader(fName));
@@ -66,9 +68,36 @@ public class MetroPlan {
 
         //Out put how many connections are readed from the file, and print them.
         System.out.println("Total connections: " + links.size());
-        for (int i = 0; i < links.size(); i++) {
-            Connection c = links.get(i);
-            System.out.println(c.from + " -> " + c.to + " (" + c.time + " mins, " + c.line + " line)");
+        
+        //loop the array and store name of stations into a hash map.
+        for (int i = 0; i<links.size(); i++){
+            Connection obj = links.get(i);
+            stations.add(obj.from);
         }
+
+
+        Scanner input = new Scanner(System.in);
+        String from;
+        String to;
+
+        do {
+            System.out.print("Please Enter start location of your journey: ");
+            from = input.nextLine().trim();
+            if(!stations.contains(from)){
+                System.out.print("Location inputed is invalid\n");
+            }
+        } while (!stations.contains(from));
+
+        do {
+            System.out.print("Please Enter end location of your journey: ");
+            to = input.nextLine().trim();
+            if(!stations.contains(to)){
+                System.out.print("Location inputed is invalid\n");
+            }
+        } while (!stations.contains(to));
+
+        input.close();
+        System.out.print("Start: "+ from + "\n");
+        System.out.print("End: "+ to + "\n");
     }
 }
