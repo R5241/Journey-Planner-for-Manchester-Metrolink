@@ -19,6 +19,13 @@ public class MetroPlan {
         }
     }
 
+    static class routeSearch_BFS{
+        String start;
+        String end;
+        
+
+    }
+
     public static void main(String[] args){
         String fName = "Metrolink_times_linecolour.csv";
         //store every things into Array for easy output
@@ -73,6 +80,28 @@ public class MetroPlan {
         for (int i = 0; i<links.size(); i++){
             Connection obj = links.get(i);
             stations.add(obj.from);
+        }
+
+        //A graph which store station in a way of (A: B,C,D).
+        HashMap<String, ArrayList<Connection>> graph = new HashMap<>();
+
+        //initialise HASHMAP - graph
+        for(int i = 0;i<links.size();i++){
+            Connection temp = links.get(i);
+
+            //If the station exists (and is not null)
+            //Graph remains unchanged. If absent, the new value is inserted.
+            //Used to prevent NullpointerException
+            graph.putIfAbsent(temp.from, new ArrayList<>());
+            graph.putIfAbsent(temp.to, new ArrayList<>());
+
+            //forward
+            graph.get(temp.from).add(temp);
+
+            //backward should take same time
+            graph.get(temp.to).add(
+                new Connection(temp.to, temp.from, temp.time, temp.line)
+            );
         }
 
 
