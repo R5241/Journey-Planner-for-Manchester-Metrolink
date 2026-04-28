@@ -71,7 +71,7 @@ public class MetroPlan {
                 //Break the loop when there is no unvisted stations
             }
 
-            if (currentStation == end){
+            if (currentStation.equals(end)){
                 break;
                 //Break the loop when currentStation is user's denstination
             }
@@ -85,10 +85,10 @@ public class MetroPlan {
 
                 double extraTime = cc.time;
 
-                String currentLine = INFO.get(currentStation).line;
-                // check weather current line is equals to the next one
+                String prevLine = INFO.get(currentStation).line;
+                // check last line is equals to the current line.
                 // if not, add 2 mins.
-                if (currentLine != null && !currentLine.equals(cc.line)){
+                if (prevLine != null && !prevLine.equals(cc.line)) {
                     extraTime += 2.0;
                 }
 
@@ -118,10 +118,11 @@ public class MetroPlan {
             cPointer = INFO.get(cPointer).previous;
         }
 
-        int NoOfChange = 0;
+        
+        System.out.println("*** Minimal Time Route ***");
+        int changes = 0;
         String LastLine = null;
         String LastStation = null;
-        System.out.println("*** Minimal Time Route ***");
         
         for (int i = 0; i < route.size(); i++){
             String station = route.get(i);
@@ -137,7 +138,7 @@ public class MetroPlan {
             // Out put message when u need to switch line.
             if (LastLine != null && Line != null && !LastLine.equals(Line)) {
                 System.out.println("** Change Line to " + Line + " line ***");
-                NoOfChange += 1;
+                changes += 1;
                 System.out.println(LastStation + " on " + Line + " line");
             }
 
@@ -146,7 +147,7 @@ public class MetroPlan {
             LastStation = station;
         }
         System.out.println("Overall Journey Time (mins) = " + INFO.get(end).time);
-        System.out.println("Number of Changes = " + NoOfChange + "\n");
+        System.out.println("Number of Changes = " + changes + "\n");
     }
 
     public static void main(String[] args){
