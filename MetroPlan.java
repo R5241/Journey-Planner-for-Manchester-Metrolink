@@ -19,11 +19,45 @@ public class MetroPlan {
         }
     }
 
-    static class routeSearch_BFS{
-        String start;
-        String end;
-        
+    // info class is used to store informations like:
+    // time: time taken from start to here
+    // previous: what is last station before this?
+    // used for Dijkstra, easy to search backwards
+    // line: which line is this station on.
+    static class info {
+        double time;
+        String previous;
+        String line;
 
+        public info(double time, String pervious, String line){
+            this.time = time;
+            this.previous = previous;
+            this.line = line;
+        }
+    }
+
+    public static void shortestTimeRoute_Dijkstra(
+        String start, String end, HashMap<String, ArrayList<Connection>> graph
+    ){
+        HashMap<String,info> INFO = new HashMap<>();
+        HashSet<String> unvistedStation = new HashSet<>();
+
+        // Initialise the HashMap at the beginning
+        // assume that all station takes infinte time to reach
+        // and we don't know how and which line it is on.
+        Set<String> allStations = graph.keySet();
+        for (String station : allStations){
+            INFO.put(station, new info(Double.MAX_VALUE, null, null));
+            unvistedStation.add(station);
+        }
+
+        // Initialise, it takes 0 min from start to start
+        // And we don't know which line we are going to.
+        INFO.put(start, new info(0.0, null, null));
+
+        while(!unvistedStation.isEmpty()){
+
+        }
     }
 
     public static void main(String[] args){
