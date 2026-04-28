@@ -29,7 +29,7 @@ public class MetroPlan {
         String previous;
         String line;
 
-        public info(double time, String pervious, String line){
+        public info(double time, String previous, String line){
             this.time = time;
             this.previous = previous;
             this.line = line;
@@ -56,8 +56,97 @@ public class MetroPlan {
         INFO.put(start, new info(0.0, null, null));
 
         while(!unvistedStation.isEmpty()){
+            String currentStation = null;
+            double shortestTime = Double.MAX_VALUE;
 
+            for (String uvStation : unvistedStation){
+                if (INFO.get(uvStation).time < shortestTime){
+                    shortestTime = INFO.get(uvStation).time;
+                    currentStation = uvStation;
+                }
+            }
+
+            if (currentStation == null){
+                break;
+                //Break the loop when there is no unvisted stations
+            }
+
+            if (currentStation == end){
+                break;
+                //Break the loop when currentStation is user's denstination
+            }
+
+            // Loop through all adjacen stations
+            unvistedStation.remove(currentStation);
+            ArrayList<Connection> adjacentStations = graph.get(currentStation);
+
+            for (int i = 0; i < adjacentStations.size(); i++){
+                Connection cc = adjacentStations.get(i);
+
+                double extraTime = cc.time;
+
+                String currentLine = INFO.get(currentStation).line;
+                // check weather current line is equals to the next one
+                // if not, add 2 mins.
+                if (currentLine != null && !currentLine.equals(cc.line)){
+                    extraTime += 2.0;
+                }
+
+                double newTime = INFO.get(currentStation).time + extraTime;
+
+                // If we found current time taken is lesser than before
+                // overwrite it.
+                if(newTime < INFO.get(cc.to).time){
+                    INFO.put(cc.to, new info(newTime, currentStation, cc.line));
+                }
+            }
         }
+        if (INFO.get(end).time == Double.MAX_VALUE){
+            System.out.println("This station is impossible to reach.");
+            return;
+        }
+
+        ArrayList<String> route = new ArrayList<>();
+        String cPointer = end;
+
+        while (cPointer!=null){
+            // add stations to beginning of the array
+            // eg, 1 -> 3 -> 6, stations
+            //[6],[3,6],[1,3,6]
+            // this is how it insert, every time, insert into position 0.
+            route.add(0, cPointer);
+            cPointer = INFO.get(cPointer).previous;
+        }
+
+        int NoOfChange = 0;
+        String LastLine = null;
+        String LastStation = null;
+        System.out.println("*** Minimal Time Route ***");
+        
+        for (int i = 0; i < route.size(); i++){
+            String station = route.get(i);
+
+            String Line = null;
+
+            if (i == 0 && route.size() > 1) {
+                Line = INFO.get(route.get(1)).line;
+            } else {
+                Line = INFO.get(station).line;
+            }
+
+            // Out put message when u need to switch line.
+            if (LastLine != null && Line != null && !LastLine.equals(Line)) {
+                System.out.println("** Change Line to " + Line + " line ***");
+                NoOfChange += 1;
+                System.out.println(LastStation + " on " + Line + " line");
+            }
+
+            System.out.println(station + " on " + Line + " line");
+            LastLine = Line; // let last line = current line.
+            LastStation = station;
+        }
+        System.out.println("Overall Journey Time (mins) = " + INFO.get(end).time);
+        System.out.println("Number of Changes = " + NoOfChange + "\n");
     }
 
     public static void main(String[] args){
@@ -162,5 +251,7 @@ public class MetroPlan {
         input.close();
         System.out.print("Start: "+ from + "\n");
         System.out.print("End: "+ to + "\n");
+
+        shortestTimeRoute_Dijkstra(from, to, graph);
     }
 }
