@@ -40,74 +40,116 @@ public class MetroPlan {
         String start, String end, HashMap<String, ArrayList<Connection>> graph
     ){
         HashMap<String,info> INFO = new HashMap<>();
-        HashSet<String> unvistedStation = new HashSet<>();
+        HashSet<String> unvistedState = new HashSet<>();
 
         // Initialise the HashMap at the beginning
-        // assume that all station takes infinte time to reach
-        // and we don't know how and which line it is on.
         Set<String> allStations = graph.keySet();
         for (String station : allStations){
-            INFO.put(station, new info(Double.MAX_VALUE, null, null));
-            unvistedStation.add(station);
+            // get any possible state of this station.
+            ArrayList<Connection> connections = graph.get(station);
+
+            // loop all the states/connection of this station.
+            for (int i = 0; i < connections.size(); i++) {
+                // Get one connection and concatenated station and line together.
+                Connection c = connections.get(i);
+                String key = station + "**" + c.line;
+
+                //eg. station1 both on red and yellow line
+                // station1**red, station1**yellow
+
+                // if this station is not exist, then initialise it
+                if (!INFO.containsKey(key)) {
+                    // assume that all station takes infinte time to reach
+                    // and we don't know how and which line it is on.
+                    INFO.put(key, new info(Double.MAX_VALUE, null, c.line));
+                    unvistedState.add(key);
+                }
+            }
         }
 
+
+        String startSta = start + "**START";
         // Initialise, it takes 0 min from start to start
         // And we don't know which line we are going to.
-        INFO.put(start, new info(0.0, null, null));
+        INFO.put(startSta, new info(0.0, null, null));
+        unvistedState.add(startSta);
 
-        while(!unvistedStation.isEmpty()){
-            String currentStation = null;
+        String bestEndSta = null;
+        double bestTime = Double.MAX_VALUE;
+
+        while(!unvistedState.isEmpty()){
+            String currentkey = null;
             double shortestTime = Double.MAX_VALUE;
 
-            for (String uvStation : unvistedStation){
-                if (INFO.get(uvStation).time < shortestTime){
-                    shortestTime = INFO.get(uvStation).time;
-                    currentStation = uvStation;
+            for (String state : unvistedState){
+                if (INFO.get(state).time < shortestTime){
+                    shortestTime = INFO.get(state).time;
+                    currentkey = state;
                 }
             }
 
-            if (currentStation == null){
+            if (currentkey == null){
                 break;
                 //Break the loop when there is no unvisted stations
             }
 
-            if (currentStation.equals(end)){
-                break;
-                //Break the loop when currentStation is user's denstination
+            // This state is now visted, need to be removed
+            unvistedState.remove(currentkey);
+            // split it and store them into string array.
+            String[] cParts = currentkey.split("\\*\\*",-1);
+            String cStation = cParts[0];
+            String cLine = cParts[1];
+            
+            // if cLine is START, means the current line is NULL.
+            if (cLine.equals("START")){
+                cLine = null;
+            }
+
+            if (cStation.equals(end)){
+                if(INFO.get(currentkey).time < bestTime){
+                    bestTime = INFO.get(currentkey).time;
+                    bestEndSta = currentkey;
+                }
+                continue;
+                // Compare and check the best route.
             }
 
             // Loop through all adjacen stations
-            unvistedStation.remove(currentStation);
-            ArrayList<Connection> adjacentStations = graph.get(currentStation);
+            ArrayList<Connection> adjacentStations = graph.get(cStation);
 
             for (int i = 0; i < adjacentStations.size(); i++){
                 Connection cc = adjacentStations.get(i);
 
                 double extraTime = cc.time;
-
-                String prevLine = INFO.get(currentStation).line;
                 // check last line is equals to the current line.
                 // if not, add 2 mins.
-                if (prevLine != null && !prevLine.equals(cc.line)) {
+                if (cLine != null && !cLine.equals(cc.line)) {
                     extraTime += 2.0;
+                }   
+
+                double newTime = INFO.get(currentkey).time + extraTime;
+
+                String nextState = cc.to + "**" + cc.line;
+
+
+                if(!INFO.containsKey(nextState)){
+                    INFO.put(nextState, new info(Double.MAX_VALUE, null, cc.line));
+                    unvistedState.add(nextState);
                 }
-
-                double newTime = INFO.get(currentStation).time + extraTime;
-
                 // If we found current time taken is lesser than before
                 // overwrite it.
-                if(newTime < INFO.get(cc.to).time){
-                    INFO.put(cc.to, new info(newTime, currentStation, cc.line));
+                if(newTime < INFO.get(nextState).time){
+                    INFO.put(nextState, new info(newTime, currentkey, cc.line));
                 }
             }
         }
-        if (INFO.get(end).time == Double.MAX_VALUE){
+        if (bestEndSta == null){
             System.out.println("This station is impossible to reach.");
             return;
         }
 
         ArrayList<String> route = new ArrayList<>();
-        String cPointer = end;
+        String cPointer = bestEndSta;
 
         while (cPointer!=null){
             // add stations to beginning of the array
@@ -125,28 +167,30 @@ public class MetroPlan {
         String LastStation = null;
         
         for (int i = 0; i < route.size(); i++){
-            String station = route.get(i);
+            String keyStation = route.get(i);
+            String[] parts = keyStation.split("\\*\\*",-1);
 
             String Line = null;
 
             if (i == 0 && route.size() > 1) {
                 Line = INFO.get(route.get(1)).line;
             } else {
-                Line = INFO.get(station).line;
+                Line = INFO.get(keyStation).line;
             }
 
             // Out put message when u need to switch line.
             if (LastLine != null && Line != null && !LastLine.equals(Line)) {
-                System.out.println("** Change Line to " + Line + " line ***");
+                System.out.println("***Change Line to " + Line + " line ***");
                 changes += 1;
                 System.out.println(LastStation + " on " + Line + " line");
             }
 
-            System.out.println(station + " on " + Line + " line");
+            System.out.println(parts[0] + " on " + Line + " line");
             LastLine = Line; // let last line = current line.
-            LastStation = station;
+            LastStation = parts[0];
         }
-        System.out.println("Overall Journey Time (mins) = " + INFO.get(end).time);
+        System.out.println();
+        System.out.println("Overall Journey Time (mins) = " + bestTime);
         System.out.println("Number of Changes = " + changes + "\n");
     }
 
