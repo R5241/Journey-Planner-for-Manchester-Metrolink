@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.*;
+import javax.swing.*;
+import java.awt.GridLayout;
 
 public class MetroPlan {
     //This class is used to store variables reads from CSV file
@@ -374,8 +376,74 @@ public class MetroPlan {
 
     }
 
+    public static void routeGui(HashMap<String, ArrayList<Connection>> graph, HashSet<String> stations){
+        JFrame frame = new JFrame("MteroLink Planner");
+        
+        JLabel startLabel = new JLabel("Start location:");
+        JTextField startField = new JTextField();
+
+        JLabel endLabel = new JLabel("End location:");
+        JTextField endField = new JTextField();
+
+        JLabel routeOptionLabel = new JLabel("Route option:");
+        String[] routeOptions = {"Shortest Time", "Fewest Changes"};
+        JComboBox<String> optionBox = new JComboBox<>(routeOptions);
+
+        JButton exeuteButton = new JButton("Find Route");
+
+        frame.setLayout(new GridLayout(4, 2, 10, 10));
+
+        frame.add(startLabel);
+        frame.add(startField);
+
+        frame.add(endLabel);
+        frame.add(endField);
+
+        frame.add(routeOptionLabel);
+        frame.add(optionBox);
+
+        frame.add(new JLabel(""));
+        frame.add(exeuteButton);
+
+
+        exeuteButton.addActionListener( e -> 
+            {
+                String from = startField.getText().trim();
+                String to = endField.getText().trim();
+                String option = (String) optionBox.getSelectedItem();
+                
+                if(!stations.contains(from)){
+                    JOptionPane.showMessageDialog(frame, "Start location is invalid.");
+                    return;
+                }
+
+                if (!stations.contains(to)){
+                    JOptionPane.showMessageDialog(frame, "End location is invalid.");
+                    return;
+                }
+
+                System.out.println("Start: " + from);
+                System.out.println("End: " + to);
+
+                if (option.equals("Shortest Time")){
+                    shortestTimeRoute_Dijkstra(from, to, graph);
+                }
+                else if(option.equals("Fewest Changes")){
+                    fewestChangeRoute_Dijkstra(from, to, graph);
+                }
+
+            }
+        );
+
+        frame.setSize(400, 200);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+
     public static void main(String[] args){
-        String fName = "Metrolink_times_linecolour.csv";
+        String fName = "Journey-Planner-for-Manchester-Metrolink/Metrolink_times_linecolour.csv";
         //store every things into Array for easy output
         ArrayList<Connection> links = new ArrayList<>();
         //store stations into a hash map for easy check user input.
@@ -452,33 +520,6 @@ public class MetroPlan {
             );
         }
 
-
-        Scanner input = new Scanner(System.in);
-        String from;
-        String to;
-
-        do {
-            System.out.print("Please Enter start location of your journey: ");
-            from = input.nextLine().trim();
-            if(!stations.contains(from)){
-                System.out.print("Location inputed is invalid\n");
-            }
-        } while (!stations.contains(from));
-
-        do {
-            System.out.print("Please Enter end location of your journey: ");
-            to = input.nextLine().trim();
-            if(!stations.contains(to)){
-                System.out.print("Location inputed is invalid\n");
-            }
-        } while (!stations.contains(to));
-
-        input.close();
-        System.out.print("Start: "+ from + "\n");
-        System.out.print("End: "+ to + "\n");
-        System.out.println();
-
-        //shortestTimeRoute_Dijkstra(from, to, graph);
-        fewestChangeRoute_Dijkstra(from, to, graph);
+        routeGui(graph, stations);
     }
 }
