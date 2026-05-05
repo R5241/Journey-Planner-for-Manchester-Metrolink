@@ -443,7 +443,7 @@ public class MetroPlan {
 
 
     public static void main(String[] args){
-        String fName = "Journey-Planner-for-Manchester-Metrolink/Metrolink_times_linecolour.csv";
+        String fName = "Metrolink_times_linecolour.csv";
         //store every things into Array for easy output
         ArrayList<Connection> links = new ArrayList<>();
         //store stations into a hash map for easy check user input.
