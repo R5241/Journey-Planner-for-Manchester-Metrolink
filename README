@@ -1,0 +1,40 @@
+Journey Planner for Manchester Metrolink
+
+# Description
+
+This is a JAVA based project, and the programe is aim for planning journeys on the Manchester Metrolink network.
+
+The program will read connection data between each stations from "Metrolink_times_linecolour.csv" and build a graph, by using station name as nodes, time as edges.
+
+This program allows user to Plann:
+1. Route based on shortest Time taken
+2. Route based on fewest change
+
+And an extra 2 mins will be added when there is change in Line during Route.
+
+This program also include a JAVA Swing GUI, which allowed user to enter start, end location, and choose Route option for planning route.
+
+# Files
+1.MetroPlan.java - Main source code, Read CSV file, initialise HASHMAP, and Open GUI.
+2.Connection.java - Source code that stores the information of one station's connection.
+3.info.java - Source code that store Dijkstra informations, eg: time, previous station and currently on which line.
+4.MetroGUI.java - Source code that initialise Swing GUI.
+5.Metrolink_times_linecolour - Data file in CSV formart.
+6.walktimes - Not been use yet.
+
+# To Compile
+** No External libraries required to Compile and Run this project **
+
+1. Open terminal and Locate to this Folder.
+2. Type - javac *.java - to compile every single java files.
+3. Then type - java MetroPlan - in terminal to run.
+
+# Debug
+If noting went wrong, "Total connections: 145" should show in Terminal as initilased output.
+
+If there is no connections, and with an output message "File not exist/not found", please goto line 8 in MetroPlan.java
+
+line 8:
+String fName = "Metrolink_times_linecolour.csv";
+
+Please replace the "Metrolink_times_linecolour.csv" with the full file path on your computer.
