@@ -14,6 +14,13 @@ And an extra 2 mins will be added when there is change in Line during Route.
 
 This program also include a JAVA Swing GUI, which allowed user to enter start, end location, and choose Route option for planning route.
 
+# References
+- Dijkstra’s Algorithm: From lecture notes and GeeksforGeeks Java examples.
+- Multistage Graph (Shortest Path): 
+    https://www.geeksforgeeks.org/dsa/multistage-graph-shortest-path/
+
+    Used for understanding alternative shortest path techniques on layered graphs.
+
 # Files
 1.MetroPlan.java - Main source code, Read CSV file, initialise HASHMAP, and Open GUI.
 2.Connection.java - Source code that stores the information of one station's connection.
